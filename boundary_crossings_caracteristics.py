@@ -14,16 +14,32 @@ import pandas
 
 @numpy.vectorize
 def amdadate_to_datetime(date):
-    return datetime.datetime.strptime(date,"%Y-%m-%dT%H:%M:%S.%f")
+	return datetime.datetime.strptime(date,"%Y-%m-%dT%H:%M:%S.%f")
 
 def juno_ephemeris_from_amda(file):
-    data_file = numpy.loadtxt(file,dtype="str")
-    date = amdadate_to_datetime(data_file[:,0][:])
-    x_coord = data_file[:,1].astype(float)
-    y_coord = data_file[:,2].astype(float)
-    z_coord = data_file[:,3].astype(float)
+	data_file = numpy.loadtxt(file,dtype="str")
+	date = amdadate_to_datetime(data_file[:,0][:])
+	x_coord = data_file[:,1].astype(float)
+	y_coord = data_file[:,2].astype(float)
+	z_coord = data_file[:,3].astype(float)
 
-    return (date,x_coord,y_coord,z_coord)
+	return (date,x_coord[:],y_coord[:],z_coord[:])
+
+@numpy.vectorize
+def webgeocalc_date_to_datetime(date_YMD,date_hours):
+        return datetime.datetime.strptime(date_YMD+"T"+date_hours,"%Y-%m-%dT%H:%M:%S.%f")
+
+def juno_ephemeris_from_webgeocalc(file, planetary_radius=False):
+	if planetary_radius == False:
+	    print("### User needs to give a planetary radius to have ephemeris in planetary units ###")
+	data_file = numpy.loadtxt(file,dtype="str")
+	date = webgeocalc_date_to_datetime(data_file[:,0],data_file[:,1])
+	x_coord = data_file[:,5].astype(float)
+	y_coord = data_file[:,6].astype(float)
+	z_coord = data_file[:,7].astype(float)
+
+	return (date,x_coord[:]/planetary_radius,y_coord[:]/planetary_radius,z_coord[:]/planetary_radius)
+
 
 def determine_juno_ephemeris_coordinates(time_start, time_end,date_ephem, x_coord,y_coord,z_coord, r_coord, th_coord, phi_coord):
 	
@@ -42,9 +58,9 @@ def determine_juno_ephemeris_coordinates(time_start, time_end,date_ephem, x_coor
 
 
 def boundary_crossings_caracteristics(time_datetime, directory_path="./", filename=False, magnetopause=False, bow_shock=False):
-	x_jso = []
-	y_jso = []
-	z_jso = []
+	x_jss = []
+	y_jss = []
+	z_jss = []
 	x_iau = []
 	y_iau = []
 	z_iau = []
@@ -55,14 +71,18 @@ def boundary_crossings_caracteristics(time_datetime, directory_path="./", filena
 	standoff_MP = []
 	standoff_BS = []
 
-	print("### Loading JSO ephemeris ###")
+	print("### Loading jss ephemeris ###")
 	# Loading JSO data to work with Joy et al (2002) model
+	# to determine the Dynamic Pressure of the Solar Wind and the standoff distances - that was not right
+	#(date_ephem_jso,x_coord_jso,y_coord_jso,z_coord_jso) = juno_ephemeris_from_amda("/Users/clouis/Documents/Data/JUNO/MAG_FGM/from_AMDA/ephemeris/juno_jup_xyz_jso_2016_2025.txt")
+	
+	# Loading jss data to work with Joy et al (2002) model
 	# to determine the Dynamic Pressure of the Solar Wind and the standoff distances
-	(date_ephem_jso,x_coord_jso,y_coord_jso,z_coord_jso) = juno_ephemeris_from_amda("/Users/clouis/Documents/Data/JUNO/MAG_FGM/from_AMDA/ephemeris/juno_jup_xyz_jso_2016_2025.txt")
-	r_coord_jso = numpy.sqrt(x_coord_jso**2 + y_coord_jso**2 + z_coord_jso**2)
-	th_coord_jso = numpy.arccos(z_coord_jso / r_coord_jso)
-	phi_coord_jso = numpy.arctan2(y_coord_jso,z_coord_jso)
-	print("### JSO ephemeris Loaded ###")
+	(date_ephem_jss,x_coord_jss,y_coord_jss,z_coord_jss) = juno_ephemeris_from_webgeocalc("/Users/clouis/Documents/Data/JUNO/ephemerides/Juno_JSS/juno_jup_xyz_jss_2016_2022.txt", planetary_radius=71492.)
+	r_coord_jss = numpy.sqrt(x_coord_jss**2 + y_coord_jss**2 + z_coord_jss**2)
+	th_coord_jss = numpy.arccos(z_coord_jss / r_coord_jss)
+	phi_coord_jss = numpy.arctan2(y_coord_jss,z_coord_jss)
+	print("### jss ephemeris Loaded ###")
 
 	print("### Loading IAU ephemeris ###")
 	(date_ephem_iau,x_coord_iau,y_coord_iau,z_coord_iau) = juno_ephemeris_from_amda("/Users/clouis/Documents/Data/JUNO/MAG_FGM/from_AMDA/ephemeris/juno_jup_xyz_iau_2016_2025.txt")
@@ -74,12 +94,12 @@ def boundary_crossings_caracteristics(time_datetime, directory_path="./", filena
 	for i_ind in trange(len(time_datetime)):
 		idatetime = time_datetime[i_ind]
 
-		(date_tmp_jso,x_tmp_jso,y_tmp_jso,z_tmp_jso,r_tmp_jso,th_tmp_jso,phi_tmp_jso)=determine_juno_ephemeris_coordinates(idatetime-datetime.timedelta(seconds=150), idatetime+datetime.timedelta(seconds=150), date_ephem_jso,x_coord_jso,y_coord_jso, z_coord_jso, r_coord_jso, th_coord_jso, phi_coord_jso)
-		x_jso.append(x_tmp_jso)
-		y_jso.append(y_tmp_jso)
-		z_jso.append(z_tmp_jso)
+		(date_tmp_jss,x_tmp_jss,y_tmp_jss,z_tmp_jss,r_tmp_jss,th_tmp_jss,phi_tmp_jss)=determine_juno_ephemeris_coordinates(idatetime-datetime.timedelta(seconds=150), idatetime+datetime.timedelta(seconds=150), date_ephem_jss,x_coord_jss,y_coord_jss, z_coord_jss, r_coord_jss, th_coord_jss, phi_coord_jss)
+		x_jss.append(x_tmp_jss)
+		y_jss.append(y_tmp_jss)
+		z_jss.append(z_tmp_jss)
 		
-		pdyn_tmp = ms_boundaries_to_pdyn(x_tmp_jso[0],y_tmp_jso[0],z_tmp_jso[0],magnetopause = magnetopause, bow_shock = bow_shock)
+		pdyn_tmp = ms_boundaries_to_pdyn(x_tmp_jss[0],y_tmp_jss[0],z_tmp_jss[0],magnetopause = magnetopause, bow_shock = bow_shock)
 		pdyn.append(pdyn_tmp)
 		
 		if pdyn_tmp[0] <= 2:
@@ -117,22 +137,22 @@ def boundary_crossings_caracteristics(time_datetime, directory_path="./", filena
 	with open(directory_path+filename, 'w') as file:
 		writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-		header = ['#',	"Day of Year",	"Date (year/month/day)",	"Time (HH:MM)",	"Boundary",	"In/Out",	"Notes",	"x (JSO)",	"y (JSO)",	"z (JSO)", "x (IAU)",	"y(IAU)",	"z (IAU)",	"r (IAU)",	"theta (IAU)",	"phi (IAU)",	"Dynamic Pressure (nPa)",	"Magnetopause Standoff Distance (Jovian radius)",	"Bow Shock Standoff Distance (Jovian radius)"]
+		header = ['#',	"Day of Year",	"Date (year/month/day)",	"Time (HH:MM)",	"Boundary",	"In/Out",	"Notes",	"x (JSS)",	"y (JSS)",	"z (JSS)", "x (IAU)",	"y(IAU)",	"z (IAU)",	"r (IAU)",	"theta (IAU)",	"phi (IAU)",	"Dynamic Pressure (nPa)",	"Magnetopause Standoff Distance (Jovian radius)",	"Bow Shock Standoff Distance (Jovian radius)"]
 		writer.writerow(header)
 		
 
 		for ielements in range(len(x_iau)):
 			writer.writerow([
-							bound+str(ielements+1),
+				bound+str(ielements+1),
 							time_datetime[ielements].strftime("%j"),
 							time_datetime[ielements].strftime("%Y/%m/%d"),
 							time_datetime[ielements].strftime("%H:%M"),
 							boundary,
 							"",
 							"",
-							str("%3.3f" % x_jso[ielements][0]),
-							str("%3.3f" % y_jso[ielements][0]),
-							str("%3.3f" % z_jso[ielements][0]),
+							str("%3.3f" % x_jss[ielements][0]),
+							str("%3.3f" % y_jss[ielements][0]),
+							str("%3.3f" % z_jss[ielements][0]),
 							str("%3.3f" % x_iau[ielements][0]),
 							str("%3.3f" % y_iau[ielements][0]),
 							str("%3.3f" % z_iau[ielements][0]),
@@ -144,4 +164,4 @@ def boundary_crossings_caracteristics(time_datetime, directory_path="./", filena
 							str("%3.3f" % standoff_BS[ielements])
 							])
 
-	return(time_datetime,x_jso, y_jso,z_jso, x_iau, y_iau, z_iau,r,th,phi,pdyn,standoff_MP, standoff_BS)
+	return(time_datetime,x_jss, y_jss,z_jss, x_iau, y_iau, z_iau,r,th,phi,pdyn,standoff_MP, standoff_BS)
