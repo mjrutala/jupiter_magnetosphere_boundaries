@@ -41,7 +41,7 @@ def determine_juno_ephemeris_coordinates(time_start, time_end,date_ephem, x_coor
 	return(date_time, x_time, y_time, z_time, r_time, th_time, phi_time)
 
 
-def boundary_crossings_caracteristics(time_datetime, directory_path="./", filename="boundary_crossings_caracteristics.csv", magnetopause=True, bow_shock=False):
+def boundary_crossings_caracteristics(time_datetime, directory_path="./", filename=False, magnetopause=False, bow_shock=False):
 	x_jso = []
 	y_jso = []
 	z_jso = []
@@ -111,6 +111,9 @@ def boundary_crossings_caracteristics(time_datetime, directory_path="./", filena
 	if bow_shock == True:
 		boundary="bow shock"
 		bound="BS"
+	if filename == False:
+		filename = "boundary_crossings_caracteristics_"+bound+".csv"
+	print("### "+filename+"will be save in the following directory:"+directory_path+" ###")
 	with open(directory_path+filename, 'w') as file:
 		writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
