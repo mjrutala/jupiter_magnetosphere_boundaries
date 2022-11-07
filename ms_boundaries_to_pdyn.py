@@ -72,18 +72,18 @@ def ms_boundaries_to_pdyn(x,y,z,magnetopause = False, bow_shock = False):
 #		0 = 
 #		(A_0 + B_0*x + C_0*x**2 + D_0*y +E_0 * y**2 +F_0* x * y - z**2)
 #		+ P_tmp * (A_1 + B_1*x + C_1*x**2) +
-#		+ P_tmp**(-4) (F_1*x*y + D_1**y + E_1*y**2)
+#		+ P_tmp**(-4) (F_1*x*y + D_1*y + E_1*y**2)
 
 #		0 = 
 #		P_tmp**4 (A_0 + B_0*x + C_0*x**2 + D_0*y +E_0 * y**2 +F_0* x * y - z**2)
 #		+ P_tmp**5 * (A_1 + B_1*x + C_1*x**2) +
-#		+ (F_1*x*y + D_1**y + E_1*y**2)
+#		+ (F_1*x*y + D_1*y + E_1*y**2)
 
 #		a * P_tmp**5 + b * P_tmp**4 + f = 0
 
 	b = A_0 +B_0*x + C_0*x**2 + D_0*y + E_0 * y**2 + F_0* x * y - z**2
 	a = (A_1 + B_1*x + C_1*x**2)
-	f = (F_1*x*y + D_1**y + E_1*y**2)
+	f = (F_1*x*y + D_1*y + E_1*y**2)
 
 	solution = nppol.Polynomial([f,0,0,0,b,a])
 
