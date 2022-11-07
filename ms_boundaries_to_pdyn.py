@@ -66,7 +66,7 @@ def ms_boundaries_to_pdyn(x,y,z,magnetopause = False, bow_shock = False):
 #		0 =
 #		A_0 + B_0*x + C_0*x**2 + D_0*y +E_0 * y**2 +F_0* x * y - z**2
 #		+  Pdyn**(-.25)*(A_1 + B_1*x + C_1*x**2) +
-#		+ Pdyn*(F_1*x*y + D_1**y + E_1*y**2) 
+#		+ Pdyn*(F_1*x*y + D_1*y + E_1*y**2) 
 
 # 		with P_tmp = Pdyn**(-1/4)
 #		0 = 
