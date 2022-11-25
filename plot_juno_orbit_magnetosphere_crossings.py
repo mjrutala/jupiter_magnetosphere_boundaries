@@ -7,7 +7,8 @@ from retrieve_boundary_crossings_from_datetime.pdyn_to_ms_boundaries import *
 from read_juno_ephemeris_from_amda import *
 
 def plot_juno_orbit_magnetosphere_crossings_2D(magnetopause_crossings = False, bow_shock_crossings = False,
-											directory_path_out = "/Users/clouis/Documents/Etudes/Juno_jupiter_solar-wind_interaction/",
+											directory_path_out = "./",
+					       						ephemeris_directory_path="./",
 											add_juno_position = None,
 											equatorial_plane = True, noon_midnight_plane = False, dawn_dusk_plane = False):
 	# add_juno_position [optional]: datetime.datetime object
@@ -23,7 +24,7 @@ def plot_juno_orbit_magnetosphere_crossings_2D(magnetopause_crossings = False, b
 
 
 
-	file_ephem = "/Users/clouis/Documents/Data/JUNO/ephemerides/Juno_JSS/juno_jup_xyz_jss_2016_2022.txt"
+	file_ephem = ephemeris_directory_path+"juno_jup_xyz_jss_2016_2022.txt"
 	(date_ephem,x_coord,y_coord,z_coord) = juno_ephemeris_from_webgeocalc(file_ephem, planetary_radius = 71492.)
 	
 	if magnetopause_crossings:
@@ -165,7 +166,8 @@ def plot_juno_orbit_magnetosphere_crossings_2D(magnetopause_crossings = False, b
 
 
 def plot_juno_orbit_magnetosphere_crossings_3D(magnetopause_crossings = False, bow_shock_crossings = False,
-											directory_path_out = "/Users/clouis/Documents/Etudes/Juno_jupiter_solar-wind_interaction/",
+											directory_path_out = "./",
+					       						ephemeris_directory_path="./",
 											add_juno_position = None, JSS = False, JH = False, JSO = False, IAU = False):
 	# add_juno_position [optional]: datetime.datetime object
 	
@@ -181,19 +183,19 @@ def plot_juno_orbit_magnetosphere_crossings_3D(magnetopause_crossings = False, b
 		return
 
 	if JSS == True:
-		file_ephem = "/Users/clouis/Documents/Data/JUNO/ephemerides/Juno_JSS/juno_jup_xyz_jss_2016_2022.txt"
+		file_ephem = ephemeris_directory_path+"juno_jup_xyz_jss_2016_2022.txt"
 		(date_ephem,x_coord,y_coord,z_coord) = juno_ephemeris_from_webgeocalc(file_ephem, planetary_radius = 71492.)
 		coord_name = "JSS"
 	if JH == True:
-		file_ephem = "/Users/clouis/Documents/Data/JUNO/ephemerides/Juno_JH/juno_jup_xyz_jh_2016_2022.txt"
+		file_ephem = ephemeris_directory_path+"juno_jup_xyz_jh_2016_2022.txt"
 		(date_ephem,x_coord,y_coord,z_coord) = juno_ephemeris_from_webgeocalc(file_ephem, planetary_radius = 71492.)
 		coord_name = "JH"
 	if JSO == True:
-		file_ephem = "/Users/clouis/Documents/Data/JUNO/MAG_FGM/from_AMDA/ephemeris/juno_jup_xyz_jso_2016_2025.txt"
+		file_ephem = ephemeris_directory_path+"juno_jup_xyz_jso_2016_2025.txt"
 		(date_ephem,x_coord,y_coord,z_coord) = juno_ephemeris_from_amda(file_ephem)
 		coord_name = "JSO"
 	if IAU == True:
-		file_ephem = "/Users/clouis/Documents/Data/JUNO/MAG_FGM/from_AMDA/ephemeris/juno_jup_xyz_iau_2016_2025.txt"
+		file_ephem = ephemeris_directory_path+"juno_jup_xyz_iau_2016_2025.txt"
 		(date_ephem,x_coord,y_coord,z_coord) = juno_ephemeris_from_amda(file_ephem)
 		coord_name = "IAU"
 
